@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"log"
 	"os"
@@ -11,13 +10,6 @@ import (
 	"github.com/samjtro/go-robinhoodcrypto/pkg/models"
 )
 
-// generateUUID generates a simple UUID v4-like string
-func generateUUID() string {
-	b := make([]byte, 16)
-	rand.Read(b)
-	return fmt.Sprintf("%x-%x-%x-%x-%x",
-		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-}
 
 func main() {
 	// Get credentials from environment variables
@@ -36,13 +28,13 @@ func main() {
 
 	ctx := context.Background()
 
-	// Example 1: Place a market buy order
-	fmt.Println("=== Placing Market Buy Order ===")
+	// Example 1: Place a market buy order with auto-generated UUID
+	fmt.Println("=== Placing Market Buy Order (Auto-Generated UUID) ===")
 	marketOrder := &models.PlaceOrderRequest{
-		Symbol:        "BTC-USD",
-		ClientOrderID: generateUUID(),
-		Side:          "buy",
-		Type:          "market",
+		Symbol: "BTC-USD",
+		// ClientOrderID is not set - will be auto-generated
+		Side: "buy",
+		Type: "market",
 		MarketOrderConfig: &models.MarketOrderConfig{
 			AssetQuantity: 0.0001, // Buy 0.0001 BTC
 		},
@@ -58,8 +50,8 @@ func main() {
 		fmt.Printf("Symbol: %s\n", order.Symbol)
 	}
 
-	// Example 2: Place a limit sell order
-	fmt.Println("\n=== Placing Limit Sell Order ===")
+	// Example 2: Place a limit sell order with manual UUID
+	fmt.Println("\n=== Placing Limit Sell Order (Manual UUID) ===")
 	
 	// First, get current price to set a reasonable limit
 	bidAsk, err := c.MarketData.GetBestBidAsk(ctx, "BTC-USD")
@@ -71,9 +63,11 @@ func main() {
 	currentPrice := bidAsk.Results[0].Price
 	limitPrice := currentPrice * 1.01 // Set limit 1% above current price
 
+	// You can still manually set ClientOrderID if you want to track it
+	manualUUID := "custom-" + fmt.Sprintf("%d", currentPrice) // Example of custom ID
 	limitOrder := &models.PlaceOrderRequest{
 		Symbol:        "BTC-USD",
-		ClientOrderID: generateUUID(),
+		ClientOrderID: manualUUID, // Manually set for tracking
 		Side:          "sell",
 		Type:          "limit",
 		LimitOrderConfig: &models.LimitOrderConfig{
@@ -93,16 +87,16 @@ func main() {
 		fmt.Printf("Limit Price: %.2f\n", limitPrice)
 	}
 
-	// Example 3: Place a stop loss order
-	fmt.Println("\n=== Placing Stop Loss Order ===")
+	// Example 3: Place a stop loss order with auto-generated UUID
+	fmt.Println("\n=== Placing Stop Loss Order (Auto-Generated UUID) ===")
 	
 	stopPrice := currentPrice * 0.95 // Stop loss at 5% below current price
 
 	stopLossOrder := &models.PlaceOrderRequest{
-		Symbol:        "BTC-USD",
-		ClientOrderID: generateUUID(),
-		Side:          "sell",
-		Type:          "stop_loss",
+		Symbol: "BTC-USD",
+		// ClientOrderID omitted - will be auto-generated
+		Side: "sell",
+		Type: "stop_loss",
 		StopLossOrderConfig: &models.StopLossOrderConfig{
 			AssetQuantity: 0.0001,
 			StopPrice:     stopPrice,

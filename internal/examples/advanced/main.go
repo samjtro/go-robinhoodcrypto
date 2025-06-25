@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/samjtro/go-robinhoodcrypto/pkg/auth"
 	"github.com/samjtro/go-robinhoodcrypto/pkg/client"
 	"github.com/samjtro/go-robinhoodcrypto/pkg/errors"
@@ -16,13 +16,6 @@ import (
 	"github.com/samjtro/go-robinhoodcrypto/pkg/ratelimit"
 )
 
-// generateUUID generates a simple UUID v4-like string
-func generateUUID() string {
-	b := make([]byte, 16)
-	rand.Read(b)
-	return fmt.Sprintf("%x-%x-%x-%x-%x",
-		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-}
 
 func main() {
 	// Example 1: Generate a new key pair
@@ -67,13 +60,13 @@ func main() {
 
 	ctx := context.Background()
 
-	// Example 3: Error handling
+	// Example 3: Error handling with different UUID scenarios
 	fmt.Println("\n=== Error Handling ===")
 	
-	// Try to place an order with invalid parameters
+	// Scenario 1: Invalid order with manual invalid UUID
 	invalidOrder := &models.PlaceOrderRequest{
 		Symbol:        "INVALID-SYMBOL",
-		ClientOrderID: "not-a-uuid", // Invalid UUID
+		ClientOrderID: "not-a-uuid", // Manually set invalid UUID
 		Side:          "buy",
 		Type:          "market",
 		MarketOrderConfig: &models.MarketOrderConfig{
@@ -120,7 +113,7 @@ func main() {
 		fmt.Println(<-results)
 	}
 
-	// Example 5: Monitoring order execution
+	// Example 5: Monitoring order execution with auto-generated UUID
 	fmt.Println("\n=== Order Monitoring ===")
 	
 	// Place a limit order well above market price (unlikely to fill immediately)
@@ -133,11 +126,12 @@ func main() {
 	currentPrice := bidAsk.Results[0].Price
 	limitPrice := currentPrice * 0.90 // 10% below market (buy order)
 	
+	// Demonstrating auto-generated UUID - no ClientOrderID field
 	monitorOrder := &models.PlaceOrderRequest{
-		Symbol:        "BTC-USD",
-		ClientOrderID: generateUUID(),
-		Side:          "buy",
-		Type:          "limit",
+		Symbol: "BTC-USD",
+		// ClientOrderID omitted - will be auto-generated
+		Side: "buy",
+		Type: "limit",
 		LimitOrderConfig: &models.LimitOrderConfig{
 			AssetQuantity: 0.0001,
 			LimitPrice:    limitPrice,
@@ -201,7 +195,28 @@ cleanup:
 		}
 	}
 
-	// Example 6: Using context for cancellation
+	// Example 6: Demonstrating manual UUID generation for tracking
+	fmt.Println("\n=== Manual UUID for Tracking ===")
+	
+	// Sometimes you want to generate your own UUID for tracking purposes
+	trackingUUID := uuid.New().String()
+	fmt.Printf("Generated tracking UUID: %s\n", trackingUUID)
+	
+	// Use it in an order
+	trackedOrder := &models.PlaceOrderRequest{
+		Symbol:        "ETH-USD",
+		ClientOrderID: trackingUUID, // Manual UUID for tracking
+		Side:          "buy",
+		Type:          "market",
+		MarketOrderConfig: &models.MarketOrderConfig{
+			AssetQuantity: 0.001,
+		},
+	}
+	
+	// You could save this UUID to a database for tracking
+	fmt.Printf("Order prepared with tracking UUID: %s\n", trackedOrder.ClientOrderID)
+
+	// Example 7: Using context for cancellation
 	fmt.Println("\n=== Context Cancellation ===")
 	
 	// Create a context with timeout

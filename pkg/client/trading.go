@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/samjtro/go-robinhoodcrypto/pkg/models"
 )
 
@@ -101,6 +102,11 @@ func (s *TradingService) GetOrders(ctx context.Context, filter *models.OrdersFil
 
 // PlaceOrder places a new crypto order
 func (s *TradingService) PlaceOrder(ctx context.Context, req *models.PlaceOrderRequest) (*models.Order, error) {
+	// Generate client order ID if not provided
+	if req.ClientOrderID == "" {
+		req.ClientOrderID = uuid.New().String()
+	}
+
 	// Validate request
 	if err := s.validateOrderRequest(req); err != nil {
 		return nil, err
@@ -155,9 +161,6 @@ func (s *TradingService) CancelOrder(ctx context.Context, orderID string) error 
 func (s *TradingService) validateOrderRequest(req *models.PlaceOrderRequest) error {
 	if req.Symbol == "" {
 		return fmt.Errorf("symbol is required")
-	}
-	if req.ClientOrderID == "" {
-		return fmt.Errorf("client_order_id is required")
 	}
 	if req.Side != "buy" && req.Side != "sell" {
 		return fmt.Errorf("invalid side: must be 'buy' or 'sell'")
