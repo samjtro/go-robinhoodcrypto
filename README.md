@@ -5,18 +5,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/rizome-dev/smolagentsgo)](https://goreportcard.com/report/github.com/rizome-dev/smolagentsgo)
 
 ```shell
-go get github.com/rizome-dev/smolagentsgo
+go get github.com/samjtro/go-robinhoodcrypto
 ```
 
 built by: [rizome labs](https://rizome.dev)
 
 contact us: [hi (at) rizome.dev](mailto:hi@rizome.dev)
-
-## Installation
-
-```bash
-go get github.com/samjtro/go-robinhoodcrypto
-```
 
 ## Quick Start
 
