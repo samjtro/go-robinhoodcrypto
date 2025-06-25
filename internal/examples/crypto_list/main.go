@@ -27,56 +27,85 @@ func main() {
 
 	ctx := context.Background()
 
-	// Example 1: Get all tradeable cryptocurrencies
-	fmt.Println("Fetching all tradeable cryptocurrencies from Robinhood...")
-	cryptos, err := c.GetAllTradeableCryptos(ctx)
+	// Example 1: Get all tradeable cryptocurrency pairs with full details
+	fmt.Println("=== Fetching All Tradeable Cryptocurrency Pairs ===")
+	pairs, err := c.GetAllTradeablePairs(ctx)
 	if err != nil {
-		log.Printf("Failed to fetch crypto list: %v", err)
+		log.Printf("Failed to fetch tradeable pairs: %v", err)
 	} else {
-		fmt.Printf("Found %d tradeable cryptocurrencies:\n", len(cryptos))
-		for i, crypto := range cryptos {
-			if i < 10 { // Show first 10
-				fmt.Printf("  %s (%s)\n", crypto.Symbol, crypto.AssetCode)
+		fmt.Printf("Found %d tradeable cryptocurrency pairs:\n\n", len(pairs))
+		
+		// Show first 10 with details
+		for i, pair := range pairs {
+			if i < 10 {
+				fmt.Printf("%2d. %s\n", i+1, pair.Symbol)
+				fmt.Printf("    Asset: %s, Quote: %s\n", pair.AssetCode, pair.QuoteCode)
+				fmt.Printf("    Order Size: Min %s, Max %s\n", pair.MinOrderSize, pair.MaxOrderSize)
+				fmt.Printf("    Increments: Asset %s, Quote %s\n", pair.AssetIncrement, pair.QuoteIncrement)
+				fmt.Println()
 			}
 		}
-		if len(cryptos) > 10 {
-			fmt.Printf("  ... and %d more\n", len(cryptos)-10)
+		
+		if len(pairs) > 10 {
+			fmt.Printf("... and %d more pairs\n\n", len(pairs)-10)
 		}
 	}
 
 	// Example 2: Get just the symbols
-	fmt.Println("\nFetching crypto symbols...")
-	symbols, err := c.GetAllTradeableCryptoSymbols(ctx)
+	fmt.Println("=== Getting Symbol List ===")
+	symbols, err := c.GetAllTradeableSymbols(ctx)
 	if err != nil {
-		log.Printf("Failed to fetch crypto symbols: %v", err)
+		log.Printf("Failed to fetch symbols: %v", err)
 	} else {
-		fmt.Printf("Found %d symbols: %v...\n", len(symbols), symbols[:min(5, len(symbols))])
+		fmt.Printf("Tradeable symbols (%d total):\n", len(symbols))
+		// Print symbols in columns
+		for i := 0; i < len(symbols); i += 5 {
+			for j := 0; j < 5 && i+j < len(symbols); j++ {
+				fmt.Printf("%-12s", symbols[i+j])
+			}
+			fmt.Println()
+			if i >= 15 { // Show first 20 symbols
+				fmt.Printf("... and %d more\n", len(symbols)-20)
+				break
+			}
+		}
 	}
 
-	// Example 3: Place an order with auto-generated UUID
-	fmt.Println("\nExample: Creating order request with auto-generated UUID...")
+	// Example 3: Get specific trading pairs details
+	fmt.Println("\n=== Getting Specific Trading Pairs ===")
+	specificPairs, err := c.Trading.GetTradingPairs(ctx, "BTC-USD", "ETH-USD", "DOGE-USD")
+	if err != nil {
+		log.Printf("Failed to fetch specific pairs: %v", err)
+	} else {
+		fmt.Printf("Details for specific pairs:\n")
+		for _, pair := range specificPairs.Results {
+			fmt.Printf("\n%s (Status: %s)\n", pair.Symbol, pair.Status)
+			fmt.Printf("  Min Order: %s %s\n", pair.MinOrderSize, pair.AssetCode)
+			fmt.Printf("  Max Order: %s %s\n", pair.MaxOrderSize, pair.AssetCode)
+			fmt.Printf("  Price Increment: %s\n", pair.QuoteIncrement)
+			fmt.Printf("  Quantity Increment: %s\n", pair.AssetIncrement)
+		}
+	}
+
+	// Example 4: Demonstrate order with auto-generated UUID
+	fmt.Println("\n=== Order Example with Auto-Generated UUID ===")
 	
 	// Create order request without ClientOrderID
 	orderReq := &models.PlaceOrderRequest{
 		Symbol: "BTC-USD",
-		Side:   "buy",
-		Type:   "market",
+		// ClientOrderID omitted - will be auto-generated
+		Side: "buy",
+		Type: "market",
 		MarketOrderConfig: &models.MarketOrderConfig{
 			AssetQuantity: 0.0001,
 		},
 	}
 	
-	fmt.Println("Order request created without ClientOrderID - it will be auto-generated")
-	fmt.Printf("Symbol: %s, Side: %s, Type: %s\n", orderReq.Symbol, orderReq.Side, orderReq.Type)
+	fmt.Println("Order request created without ClientOrderID - UUID will be auto-generated when order is placed")
+	fmt.Printf("Symbol: %s, Side: %s, Type: %s, Quantity: %g BTC\n", 
+		orderReq.Symbol, orderReq.Side, orderReq.Type, orderReq.MarketOrderConfig.AssetQuantity)
 	
 	// Note: We're not actually placing the order in this example
 	// To place the order, you would use:
 	// order, err := c.Trading.PlaceOrder(ctx, orderReq)
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
