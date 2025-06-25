@@ -1,1 +1,282 @@
 # go-robinhoodcrypto
+
+A production-grade Go SDK for the Robinhood Crypto API, providing full feature parity with the official API.
+
+## Features
+
+- ✅ Complete API coverage for all Robinhood Crypto endpoints
+- 🔐 Ed25519 signature-based authentication
+- ⚡ Built-in rate limiting with token bucket algorithm
+- 🔄 Automatic retry logic with exponential backoff
+- 📄 Pagination support with convenient iterators
+- 🛡️ Comprehensive error handling
+- 🧪 Full test coverage
+- 🔒 Production-grade security and concurrency
+
+## Installation
+
+```bash
+go get github.com/samjtro/go-robinhoodcrypto
+```
+
+## Quick Start
+
+### Generate API Keys
+
+First, generate an Ed25519 key pair:
+
+```go
+import "github.com/samjtro/go-robinhoodcrypto/pkg/auth"
+
+privateKey, publicKey, err := auth.GenerateKeyPair()
+if err != nil {
+    log.Fatal(err)
+}
+
+fmt.Printf("Private Key: %s\n", privateKey)
+fmt.Printf("Public Key: %s\n", publicKey)
+```
+
+1. Use the public key to create API credentials at https://robinhood.com/account/crypto
+2. Store your API key and private key securely
+3. Never share your private key
+
+### Usage
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    
+    "github.com/samjtro/go-robinhoodcrypto/pkg/client"
+)
+
+func main() {
+    // Create a new client
+    c, err := client.New("your-api-key", "your-private-key")
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    ctx := context.Background()
+    
+    // Get account details
+    account, err := c.Account.GetAccountDetails(ctx)
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    fmt.Printf("Buying Power: %s %s\n", account.BuyingPower, account.BuyingPowerCurrency)
+    
+    // Get current BTC price
+    prices, err := c.MarketData.GetBestBidAsk(ctx, "BTC-USD")
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    fmt.Printf("BTC Price: $%.2f\n", prices.Results[0].Price)
+}
+```
+
+### Environment Variables
+
+We recommend using environment variables for credentials:
+
+```bash
+export ROBINHOOD_API_KEY="rh-api-your-key-here"
+export ROBINHOOD_PRIVATE_KEY="your-base64-private-key"
+```
+
+## API Coverage
+
+### Account API
+- `GetAccountDetails()` - Get crypto trading account details
+
+### Market Data API
+- `GetBestBidAsk()` - Get best bid/ask prices for symbols
+- `GetEstimatedPrice()` - Get estimated execution prices for different quantities
+
+### Trading API
+- `GetTradingPairs()` - Get available trading pairs and their limits
+- `GetHoldings()` - Get crypto holdings
+- `GetOrders()` - Get orders with filtering options
+- `GetOrder()` - Get specific order by ID
+- `PlaceOrder()` - Place new crypto orders (market, limit, stop loss, stop limit)
+- `CancelOrder()` - Cancel open orders
+
+## Advanced Usage
+
+### Custom Configuration
+
+```go
+import (
+    "net/http"
+    "time"
+    
+    "github.com/samjtro/go-robinhoodcrypto/pkg/client"
+    "github.com/samjtro/go-robinhoodcrypto/pkg/ratelimit"
+)
+
+// Custom HTTP client
+httpClient := &http.Client{
+    Timeout: 60 * time.Second,
+}
+
+// Custom rate limiter
+rateLimiter := ratelimit.NewRateLimiter(50, 50, time.Minute)
+
+// Create client with options
+c, err := client.New(
+    apiKey,
+    privateKey,
+    client.WithHTTPClient(httpClient),
+    client.WithRateLimiter(rateLimiter),
+    client.WithBaseURL("https://custom.url.com"), // For testing
+)
+```
+
+### Pagination
+
+```go
+// Using pagination iterator
+paginator := c.Trading.NewOrdersPaginator(&models.OrdersFilter{
+    Symbol: "BTC-USD",
+    Limit:  10,
+})
+
+// Iterate through pages
+for paginator.HasNext() {
+    orders, err := paginator.Next(ctx)
+    if err != nil {
+        break
+    }
+    
+    for _, order := range orders {
+        fmt.Printf("Order: %s\n", order.ID)
+    }
+}
+
+// Or get all pages at once
+allOrders, err := paginator.GetAllPages(ctx)
+```
+
+### Error Handling
+
+```go
+import "github.com/samjtro/go-robinhoodcrypto/pkg/errors"
+
+order, err := c.Trading.PlaceOrder(ctx, orderRequest)
+if err != nil {
+    // Check if it's an API error
+    if apiErr, ok := err.(*errors.APIError); ok {
+        fmt.Printf("API Error: %s (Status: %d)\n", apiErr.Type, apiErr.StatusCode)
+        
+        for _, detail := range apiErr.Errors {
+            fmt.Printf("Field: %s, Error: %s\n", detail.Attr, detail.Detail)
+        }
+    }
+}
+```
+
+### Order Types
+
+```go
+// Market Order
+marketOrder := &models.PlaceOrderRequest{
+    Symbol:        "BTC-USD",
+    ClientOrderID: uuid.New().String(),
+    Side:          "buy",
+    Type:          "market",
+    MarketOrderConfig: &models.MarketOrderConfig{
+        AssetQuantity: 0.001, // Buy 0.001 BTC
+    },
+}
+
+// Limit Order
+limitOrder := &models.PlaceOrderRequest{
+    Symbol:        "ETH-USD",
+    ClientOrderID: uuid.New().String(),
+    Side:          "sell",
+    Type:          "limit",
+    LimitOrderConfig: &models.LimitOrderConfig{
+        AssetQuantity: 1.5,
+        LimitPrice:    2500.00,
+        TimeInForce:   "gtc", // Good Till Cancelled
+    },
+}
+
+// Stop Loss Order
+stopLossOrder := &models.PlaceOrderRequest{
+    Symbol:        "BTC-USD",
+    ClientOrderID: uuid.New().String(),
+    Side:          "sell",
+    Type:          "stop_loss",
+    StopLossOrderConfig: &models.StopLossOrderConfig{
+        AssetQuantity: 0.5,
+        StopPrice:     40000.00,
+        TimeInForce:   "gtc",
+    },
+}
+```
+
+## Rate Limiting
+
+The SDK includes automatic rate limiting to comply with Robinhood's limits:
+- 100 requests per minute normally
+- 300 requests per minute in bursts
+
+Rate limiting is handled automatically, but you can monitor token availability:
+
+```go
+tokens := c.RateLimiter.Tokens()
+fmt.Printf("Available tokens: %.0f\n", tokens)
+```
+
+## Examples
+
+See the [`internal/examples`](internal/examples) directory for complete examples:
+- [`basic_usage.go`](internal/examples/basic_usage.go) - Basic API operations
+- [`place_orders.go`](internal/examples/place_orders.go) - Order placement examples  
+- [`pagination.go`](internal/examples/pagination.go) - Pagination examples
+- [`advanced_usage.go`](internal/examples/advanced_usage.go) - Advanced features and error handling
+
+## Testing
+
+Run the test suite:
+
+```bash
+go test ./...
+```
+
+Run tests with coverage:
+
+```bash
+go test -cover ./...
+```
+
+## Security Considerations
+
+1. **Never commit credentials** - Use environment variables or secure key management
+2. **Validate order parameters** - The SDK validates orders before submission
+3. **Use small quantities for testing** - Start with minimum order sizes
+4. **Monitor rate limits** - Respect API limits to avoid being blocked
+5. **Handle errors gracefully** - Always check for errors in production code
+
+## Contributing
+
+Contributions are welcome! Please ensure:
+- All tests pass
+- New features include tests
+- Code follows Go best practices
+- Documentation is updated
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Disclaimer
+
+This SDK is not affiliated with, endorsed by, or sponsored by Robinhood Markets, Inc. Use at your own risk. Cryptocurrency trading carries significant risks. Always understand the implications of your trades.
