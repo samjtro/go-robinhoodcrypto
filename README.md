@@ -105,7 +105,33 @@ export ROBINHOOD_PRIVATE_KEY="your-base64-private-key"
 - `PlaceOrder()` - Place new crypto orders (market, limit, stop loss, stop limit)
 - `CancelOrder()` - Cancel open orders
 
+### Utility Functions
+- `GetAllTradeablePairs()` - Get all tradeable cryptocurrency pairs
+- `GetAllTradeableSymbols()` - Get just the symbols of all tradeable pairs
+
 ## Advanced Usage
+
+### Get All Tradeable Cryptocurrencies
+
+```go
+// Get all tradeable pairs with full details
+pairs, err := c.GetAllTradeablePairs(ctx)
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, pair := range pairs {
+    fmt.Printf("%s - Min: %s, Max: %s\n", 
+        pair.Symbol, pair.MinOrderSize, pair.MaxOrderSize)
+}
+
+// Or just get the symbols
+symbols, err := c.GetAllTradeableSymbols(ctx)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Available symbols: %v\n", symbols)
+```
 
 ### Custom Configuration
 
@@ -182,21 +208,21 @@ if err != nil {
 ### Order Types
 
 ```go
-// Market Order
+// Market Order - UUID will be auto-generated if not provided
 marketOrder := &models.PlaceOrderRequest{
-    Symbol:        "BTC-USD",
-    ClientOrderID: uuid.New().String(),
-    Side:          "buy",
-    Type:          "market",
+    Symbol: "BTC-USD",
+    // ClientOrderID is optional - will be auto-generated if omitted
+    Side: "buy",
+    Type: "market",
     MarketOrderConfig: &models.MarketOrderConfig{
         AssetQuantity: 0.001, // Buy 0.001 BTC
     },
 }
 
-// Limit Order
+// Limit Order - with manual UUID for tracking
 limitOrder := &models.PlaceOrderRequest{
     Symbol:        "ETH-USD",
-    ClientOrderID: uuid.New().String(),
+    ClientOrderID: "my-custom-id-123", // Optional: provide your own ID
     Side:          "sell",
     Type:          "limit",
     LimitOrderConfig: &models.LimitOrderConfig{
@@ -206,18 +232,24 @@ limitOrder := &models.PlaceOrderRequest{
     },
 }
 
-// Stop Loss Order
+// Stop Loss Order - auto-generated UUID
 stopLossOrder := &models.PlaceOrderRequest{
-    Symbol:        "BTC-USD",
-    ClientOrderID: uuid.New().String(),
-    Side:          "sell",
-    Type:          "stop_loss",
+    Symbol: "BTC-USD",
+    Side:   "sell",
+    Type:   "stop_loss",
     StopLossOrderConfig: &models.StopLossOrderConfig{
         AssetQuantity: 0.5,
         StopPrice:     40000.00,
         TimeInForce:   "gtc",
     },
 }
+
+// Place orders
+order, err := c.Trading.PlaceOrder(ctx, marketOrder)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Order placed with ID: %s\n", order.ClientOrderID)
 ```
 
 ## Rate Limiting
