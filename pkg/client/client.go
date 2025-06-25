@@ -138,7 +138,12 @@ func (c *Client) request(ctx context.Context, method, path string, query url.Val
 		req.Header.Set("Content-Type", "application/json")
 		
 		// Add authentication headers
-		authHeaders, err := c.auth.GetAuthHeaders(method, u.Path, bodyStr)
+		// Include query parameters in the path for signature generation
+		pathWithQuery := u.Path
+		if u.RawQuery != "" {
+			pathWithQuery = u.Path + "?" + u.RawQuery
+		}
+		authHeaders, err := c.auth.GetAuthHeaders(method, pathWithQuery, bodyStr)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get auth headers: %w", err)
 		}
