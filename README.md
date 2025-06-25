@@ -1,17 +1,16 @@
 # go-robinhoodcrypto
 
-A production-grade Go SDK for the Robinhood Crypto API, providing full feature parity with the official API.
 
-## Features
+[![GoDoc](https://pkg.go.dev/badge/github.com/rizome-dev/smolagentsgo)](https://pkg.go.dev/github.com/rizome-dev/smolagentsgo)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rizome-dev/smolagentsgo)](https://goreportcard.com/report/github.com/rizome-dev/smolagentsgo)
 
-- ✅ Complete API coverage for all Robinhood Crypto endpoints
-- 🔐 Ed25519 signature-based authentication
-- ⚡ Built-in rate limiting with token bucket algorithm
-- 🔄 Automatic retry logic with exponential backoff
-- 📄 Pagination support with convenient iterators
-- 🛡️ Comprehensive error handling
-- 🧪 Full test coverage
-- 🔒 Production-grade security and concurrency
+```shell
+go get github.com/rizome-dev/smolagentsgo
+```
+
+built by: [rizome labs](https://rizome.dev)
+
+contact us: [hi (at) rizome.dev](mailto:hi@rizome.dev)
 
 ## Installation
 
