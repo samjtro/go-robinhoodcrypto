@@ -19,9 +19,15 @@ contact us: [hi (at) rizome.dev](mailto:hi@rizome.dev)
 First, generate an Ed25519 key pair:
 
 ```go
-import "github.com/samjtro/go-robinhoodcrypto/pkg/auth"
+import (
+    "log"
+    "fmt"
+
+    "github.com/samjtro/go-robinhoodcrypto/pkg/auth"
+)
 
 privateKey, publicKey, err := auth.GenerateKeyPair()
+
 if err != nil {
     log.Fatal(err)
 }
