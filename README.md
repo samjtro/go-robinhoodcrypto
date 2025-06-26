@@ -1,8 +1,8 @@
 # go-robinhoodcrypto
 
 
-[![GoDoc](https://pkg.go.dev/badge/github.com/rizome-dev/smolagentsgo)](https://pkg.go.dev/github.com/rizome-dev/smolagentsgo)
-[![Go Report Card](https://goreportcard.com/badge/github.com/rizome-dev/smolagentsgo)](https://goreportcard.com/report/github.com/rizome-dev/smolagentsgo)
+[![GoDoc](https://pkg.go.dev/badge/github.com/samjtro/go-robinhoodcrypto)](https://pkg.go.dev/github.com/samjtro/go-robinhoodcrypto)
+[![Go Report Card](https://goreportcard.com/badge/github.com/samjtro/go-robinhoodcrypto)](https://goreportcard.com/report/github.com/samjtro/go-robinhoodcrypto)
 
 ```shell
 go get github.com/samjtro/go-robinhoodcrypto
