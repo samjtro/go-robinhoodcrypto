@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/samjtro/go-robinhoodcrypto/pkg/models"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/models"
 )
 
 // PaginationOptions provides pagination control

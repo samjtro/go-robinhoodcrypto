@@ -1,11 +1,11 @@
-# go-robinhoodcrypto
+# go-robinhood
 
 
-[![GoDoc](https://pkg.go.dev/badge/github.com/samjtro/go-robinhoodcrypto)](https://pkg.go.dev/github.com/samjtro/go-robinhoodcrypto)
-[![Go Report Card](https://goreportcard.com/badge/github.com/samjtro/go-robinhoodcrypto)](https://goreportcard.com/report/github.com/samjtro/go-robinhoodcrypto)
+[![GoDoc](https://pkg.go.dev/badge/github.com/rizome-dev/go-robinhood)](https://pkg.go.dev/github.com/rizome-dev/go-robinhood)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rizome-dev/go-robinhood)](https://goreportcard.com/report/github.com/rizome-dev/go-robinhood)
 
 ```shell
-go get github.com/samjtro/go-robinhoodcrypto
+go get github.com/rizome-dev/go-robinhood
 ```
 
 built by: [rizome labs](https://rizome.dev)
@@ -23,7 +23,7 @@ import (
     "log"
     "fmt"
 
-    "github.com/samjtro/go-robinhoodcrypto/pkg/auth"
+    "github.com/rizome-dev/go-robinhood/pkg/crypto/auth"
 )
 
 privateKey, publicKey, err := auth.GenerateKeyPair()
@@ -49,7 +49,7 @@ import (
     "fmt"
     "log"
     
-    "github.com/samjtro/go-robinhoodcrypto/pkg/client"
+    "github.com/rizome-dev/go-robinhood/pkg/crypto/client"
 )
 
 func main() {
@@ -140,8 +140,8 @@ import (
     "net/http"
     "time"
     
-    "github.com/samjtro/go-robinhoodcrypto/pkg/client"
-    "github.com/samjtro/go-robinhoodcrypto/pkg/ratelimit"
+    "github.com/rizome-dev/go-robinhood/pkg/crypto/client"
+    "github.com/rizome-dev/go-robinhood/pkg/crypto/ratelimit"
 )
 
 // Custom HTTP client
@@ -190,7 +190,7 @@ allOrders, err := paginator.GetAllPages(ctx)
 ### Error Handling
 
 ```go
-import "github.com/samjtro/go-robinhoodcrypto/pkg/errors"
+import "github.com/rizome-dev/go-robinhood/pkg/crypto/errors"
 
 order, err := c.Trading.PlaceOrder(ctx, orderRequest)
 if err != nil {

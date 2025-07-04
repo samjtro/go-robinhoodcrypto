@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/samjtro/go-robinhoodcrypto/pkg/client"
-	"github.com/samjtro/go-robinhoodcrypto/pkg/models"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/client"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/models"
 )
 
 
@@ -64,7 +64,7 @@ func main() {
 	limitPrice := currentPrice * 1.01 // Set limit 1% above current price
 
 	// You can still manually set ClientOrderID if you want to track it
-	manualUUID := "custom-" + fmt.Sprintf("%d", currentPrice) // Example of custom ID
+	manualUUID := "custom-" + fmt.Sprintf("%.2f", currentPrice) // Example of custom ID
 	limitOrder := &models.PlaceOrderRequest{
 		Symbol:        "BTC-USD",
 		ClientOrderID: manualUUID, // Manually set for tracking

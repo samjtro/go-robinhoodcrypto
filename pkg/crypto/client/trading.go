@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/samjtro/go-robinhoodcrypto/pkg/models"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/models"
 )
 
 // GetTradingPairs fetches the list of available trading pairs

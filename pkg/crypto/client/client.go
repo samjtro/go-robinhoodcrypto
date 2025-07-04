@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/samjtro/go-robinhoodcrypto/pkg/auth"
-	"github.com/samjtro/go-robinhoodcrypto/pkg/errors"
-	"github.com/samjtro/go-robinhoodcrypto/pkg/models"
-	"github.com/samjtro/go-robinhoodcrypto/pkg/ratelimit"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/auth"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/errors"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/models"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/ratelimit"
 )
 
 const (

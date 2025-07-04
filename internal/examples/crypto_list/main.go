@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/samjtro/go-robinhoodcrypto/pkg/client"
-	"github.com/samjtro/go-robinhoodcrypto/pkg/models"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/client"
+	"github.com/rizome-dev/go-robinhood/pkg/crypto/models"
 )
 
 func main() {
